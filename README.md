@@ -70,6 +70,8 @@ Internship & academic projects
 
 Python + Data Visualization learning
 
+---
+
 ## Developed By
 
 Hovarthan S
