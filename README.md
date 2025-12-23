@@ -23,8 +23,6 @@ This project helps users clearly analyze their financial behavior and spending p
 
 ## Sample Video
 
-## Video
-
 [▶ Expense Tracker ](https://drive.google.com/file/d/1NyTKAcnv4GtYd0iwSRdOl2zvcuQcbSvz/view?usp=sharing)
 
 ---
