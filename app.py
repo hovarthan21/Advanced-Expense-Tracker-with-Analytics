@@ -4,6 +4,18 @@ import json
 import os
 from datetime import datetime, timedelta
 
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run()
+
+
 app = Flask(__name__, template_folder='.', static_folder='.')
 app.secret_key = 'expense_tracker_secret_key_2024'
 CORS(app)
@@ -184,3 +196,4 @@ def save_settings():
 if __name__ == '__main__':
 
     app.run(debug=True, port=5000)
+
