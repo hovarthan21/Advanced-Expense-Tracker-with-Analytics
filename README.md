@@ -15,6 +15,10 @@ An **advanced expense tracking system** that records **money sent and received**
 
 This project helps users clearly analyze their financial behavior and spending patterns.
 
+<p align="center">
+  <img src="Expense Tracker.webp" width="450" alt="Food Logo" />
+</p>
+
 ---
 
 ##  Key Features
