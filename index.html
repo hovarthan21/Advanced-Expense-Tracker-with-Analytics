@@ -40,7 +40,6 @@
             padding: 0 20px;
         }
 
-        /* Header Styles */
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: var(--white);
@@ -121,7 +120,6 @@
             background-color: #e11570;
         }
 
-        /* Main Content */
         main {
             padding: 2rem 0;
         }
@@ -274,7 +272,6 @@
             overflow-x: auto;
         }
 
-        /* Reports Section */
         .reports-charts {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -315,7 +312,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -385,7 +381,6 @@
             display: block;
         }
 
-        /* Progress Bars for Breakdown */
         .progress-bar {
             height: 8px;
             background-color: #e9ecef;
@@ -401,7 +396,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Notification Styles */
         .notification {
             position: fixed;
             top: 20px;
@@ -498,7 +492,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+   
     <header>
         <div class="container">
             <div class="header-content">
@@ -517,11 +511,11 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+   
     <main class="container">
-        <!-- Dashboard Page -->
+        
         <div id="dashboardPage" class="page active">
-            <!-- Dashboard Summary -->
+            
             <section class="dashboard">
                 <div class="card">
                     <div class="card-header">
@@ -529,7 +523,7 @@
                     </div>
                     <div class="amount negative" id="totalSpent">₹0.00</div>
                     <div class="spent-breakdown" id="spentBreakdown">
-                        <!-- Will be populated by JavaScript -->
+            
                     </div>
                 </div>
                 <div class="card">
@@ -538,12 +532,12 @@
                     </div>
                     <div class="amount positive" id="totalReceived">₹0.00</div>
                     <div class="received-breakdown" id="receivedBreakdown">
-                        <!-- Will be populated by JavaScript -->
+                        
                     </div>
                 </div>
             </section>
 
-            <!-- Transaction Form -->
+          
             <section class="card">
                 <div class="card-header">
                     <h2 class="card-title">Add Transaction</h2>
@@ -577,7 +571,7 @@
                 </form>
             </section>
 
-            <!-- Charts Section -->
+           
             <section class="charts-section">
                 <div class="chart-container">
                     <h3>Spending by Category</h3>
@@ -595,7 +589,7 @@
                 </div>
             </section>
 
-            <!-- Recent Transactions -->
+           
             <section class="card">
                 <div class="card-header">
                     <h2 class="card-title">Recent Transactions</h2>
@@ -617,13 +611,13 @@
                         </tr>
                     </thead>
                     <tbody id="transactionsTableBody">
-                        <!-- Will be populated by JavaScript -->
+                       
                     </tbody>
                 </table>
             </section>
         </div>
 
-        <!-- Transactions Page -->
+        
         <div id="transactionsPage" class="page">
             <section class="card">
                 <div class="card-header">
@@ -649,14 +643,14 @@
                             </tr>
                         </thead>
                         <tbody id="allTransactionsTableBody">
-                            <!-- Will be populated by JavaScript -->
+                           
                         </tbody>
                     </table>
                 </div>
             </section>
         </div>
 
-        <!-- Reports Page -->
+        
         <div id="reportsPage" class="page">
             <section class="card">
                 <div class="card-header">
@@ -693,7 +687,7 @@
                     </div>
                 </div>
                 
-                <!-- Financial Summary -->
+                
                 <div class="financial-summary">
                     <h3>Financial Summary</h3>
                     <div class="summary-cards">
@@ -714,7 +708,6 @@
             </section>
         </div>
 
-        <!-- Settings Page -->
         <div id="settingsPage" class="page">
             <section class="card">
                 <div class="card-header">
@@ -747,7 +740,6 @@
         </div>
     </main>
 
-    <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -796,27 +788,23 @@
     </div>
 
     <script>
-        // Global variables
+        
         const spentCategories = ["Food", "Travel", "Friends", "Family", "Stationary", "Rent"];
         const receivedCategories = ["Friends", "Family", "Work"];
         let currentUser = null;
         let users = JSON.parse(localStorage.getItem('users') || '{}');
         let charts = {};
 
-        // DOM Elements
         const loginModal = document.getElementById('loginModal');
         const transactionForm = document.getElementById('transactionForm');
         const transactionType = document.getElementById('transactionType');
         const categorySelect = document.getElementById('category');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             currentUser = localStorage.getItem('currentUser');
             updateUI();
             setupEventListeners();
-            
-            // Set Indian Rupees as default currency for new users
             initializeDefaultSettings();
             
             if (currentUser) {
@@ -827,7 +815,6 @@
         });
 
         function initializeDefaultSettings() {
-            // If no users exist yet, initialize with Indian Rupees as default
             if (Object.keys(users).length === 0) {
                 users = {
                     'default': {
@@ -840,7 +827,6 @@
                 localStorage.setItem('users', JSON.stringify(users));
             }
             
-            // Set Indian Rupees as selected in dropdown
             const currencySelect = document.getElementById('currency');
             if (currencySelect) {
                 currencySelect.value = '₹';
@@ -848,33 +834,24 @@
         }
 
         function setupEventListeners() {
-            // Transaction form
+            
             transactionType.addEventListener('change', updateCategories);
             transactionForm.addEventListener('submit', handleTransactionSubmit);
             
-            // Login/Register forms
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('registerForm').addEventListener('submit', handleRegister);
             logoutBtn.addEventListener('click', handleLogout);
             
-            // Filters
             document.getElementById('timeFilter').addEventListener('change', updateTransactionsTable);
             document.getElementById('allTransactionsFilter').addEventListener('change', updateAllTransactionsTable);
             
-            // Reports
             document.getElementById('reportPeriod').addEventListener('change', renderReports);
             document.getElementById('downloadTrendChart').addEventListener('click', () => downloadChart('trendChart'));
             document.getElementById('downloadTopCategoriesChart').addEventListener('click', () => downloadChart('topCategoriesChart'));
             document.getElementById('downloadIncomeSourcesChart').addEventListener('click', () => downloadChart('incomeSourcesChart'));
-            
-            // Settings
             document.getElementById('saveSettings').addEventListener('click', saveSettings);
-            
-            // Chart downloads
             document.getElementById('downloadSpendingChart').addEventListener('click', () => downloadChart('categoryChart'));
             document.getElementById('downloadIncomeExpenseChart').addEventListener('click', () => downloadChart('incomeExpenseChart'));
-            
-            // Navigation
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -886,7 +863,6 @@
                 });
             });
 
-            // Modal
             document.querySelector('.close-modal').addEventListener('click', () => {
                 loginModal.style.display = 'none';
             });
@@ -897,7 +873,6 @@
                 }
             });
 
-            // Tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
@@ -963,43 +938,35 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    // Add to local storage as fallback
                     if (users[currentUser]) {
                         users[currentUser].transactions.push(transaction);
                         localStorage.setItem('users', JSON.stringify(users));
                     }
                     
-                    // Update all dashboard elements immediately
                     updateDashboard();
                     renderCharts();
                     updateTransactionsTable();
                     updateAllTransactionsTable();
                     
-                    // Reset form
                     transactionForm.reset();
                     categorySelect.innerHTML = '<option value="">Select Category</option>';
                     
-                    // Show success message
                     showNotification('Transaction added successfully!', 'success');
                 }
             } catch (error) {
                 console.error('Error adding transaction:', error);
-                // Fallback to localStorage
                 if (users[currentUser]) {
                     users[currentUser].transactions.push(transaction);
                     localStorage.setItem('users', JSON.stringify(users));
                     
-                    // Update all dashboard elements immediately
                     updateDashboard();
                     renderCharts();
                     updateTransactionsTable();
                     updateAllTransactionsTable();
                     
-                    // Reset form
                     transactionForm.reset();
                     categorySelect.innerHTML = '<option value="">Select Category</option>';
                     
-                    // Show success message
                     showNotification('Transaction added successfully!', 'success');
                 } else {
                     showNotification('Error adding transaction. Please try again.', 'error');
@@ -1008,7 +975,6 @@
         }
 
         function showNotification(message, type) {
-            // Create notification element
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             notification.innerHTML = `
@@ -1018,7 +984,6 @@
             
             document.body.appendChild(notification);
             
-            // Auto remove after 3 seconds
             setTimeout(() => {
                 if (notification.parentElement) {
                     notification.remove();
@@ -1059,7 +1024,6 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                // Fallback to localStorage
                 if (users[username] && users[username].password === password) {
                     currentUser = username;
                     localStorage.setItem('currentUser', username);
@@ -1101,7 +1065,6 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    // Add to local storage as fallback with Indian Rupees as default
                     users[username] = {
                         username,
                         password,
@@ -1112,8 +1075,6 @@
                     
                     showNotification('Registration successful! Please login.', 'success');
                     document.getElementById('registerForm').reset();
-                    
-                    // Switch to login tab
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     document.querySelector('.tab[data-tab="login"]').classList.add('active');
@@ -1123,7 +1084,6 @@
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                // Fallback to localStorage
                 if (users[username]) {
                     showNotification('Username already exists', 'error');
                 } else {
@@ -1155,7 +1115,6 @@
                 localStorage.removeItem('currentUser');
                 updateUI();
                 
-                // Destroy charts
                 Object.values(charts).forEach(chart => {
                     if (chart) chart.destroy();
                 });
@@ -1201,9 +1160,7 @@
         function updateDashboard() {
             const userData = users[currentUser];
             const transactions = userData?.transactions || [];
-            const currency = userData?.settings?.currency || '₹'; // Default to Indian Rupees
-            
-            // Calculate totals
+            const currency = userData?.settings?.currency || '₹'; 
             const totalSpent = transactions
                 .filter(t => t.type === 'spent')
                 .reduce((sum, t) => sum + t.amount, 0);
@@ -1212,11 +1169,9 @@
                 .filter(t => t.type === 'received')
                 .reduce((sum, t) => sum + t.amount, 0);
             
-            // Update totals with Indian Rupees symbol
             document.getElementById('totalSpent').textContent = `${currency}${totalSpent.toFixed(2)}`;
             document.getElementById('totalReceived').textContent = `${currency}${totalReceived.toFixed(2)}`;
             
-            // Calculate and update breakdowns
             updateSpentBreakdown(transactions, totalSpent, currency);
             updateReceivedBreakdown(transactions, totalReceived, currency);
         }
@@ -1248,7 +1203,6 @@
                 spentBreakdown.appendChild(item);
             }
             
-            // Show message if no spending
             if (Object.keys(spentByCategory).length === 0) {
                 spentBreakdown.innerHTML = '<div style="text-align: center; color: var(--gray);">No spending data available</div>';
             }
@@ -1281,7 +1235,6 @@
                 receivedBreakdown.appendChild(item);
             }
             
-            // Show message if no income
             if (Object.keys(receivedByCategory).length === 0) {
                 receivedBreakdown.innerHTML = '<div style="text-align: center; color: var(--gray);">No income data available</div>';
             }
@@ -1302,7 +1255,6 @@
                 }
             } catch (error) {
                 console.error('Transactions API error, using localStorage:', error);
-                // Fallback to localStorage
                 const userData = users[currentUser];
                 transactions = userData?.transactions || [];
                 
@@ -1365,7 +1317,6 @@
                 }
             } catch (error) {
                 console.error('All transactions API error, using localStorage:', error);
-                // Fallback to localStorage
                 const userData = users[currentUser];
                 transactions = userData?.transactions || [];
             }
@@ -1419,7 +1370,6 @@
                 if (!data.success) throw new Error('API error');
             } catch (error) {
                 console.error('Delete API error, using localStorage:', error);
-                // Fallback to localStorage
                 if (users[currentUser]) {
                     users[currentUser].transactions = users[currentUser].transactions.filter(t => t.id !== transactionId);
                     localStorage.setItem('users', JSON.stringify(users));
@@ -1436,8 +1386,6 @@
         function renderCharts() {
             const userData = users[currentUser];
             const transactions = userData?.transactions || [];
-            
-            // Spending by Category Chart
             const spentByCategory = {};
             spentCategories.forEach(category => {
                 spentByCategory[category] = 0;
@@ -1477,8 +1425,7 @@
                     }
                 }
             });
-            
-            // Income vs Expenses Chart
+        
             const now = new Date();
             const dailyData = { spent: 0, received: 0 };
             const weeklyData = { spent: 0, received: 0 };
@@ -1489,20 +1436,17 @@
             
             transactions.forEach(t => {
                 const transactionDate = new Date(t.date);
-                
-                // Daily (today)
+            
                 if (t.date === now.toISOString().split('T')[0]) {
                     if (t.type === 'spent') dailyData.spent += t.amount;
                     else dailyData.received += t.amount;
                 }
                 
-                // Weekly (last 7 days)
                 if (transactionDate >= oneWeekAgo) {
                     if (t.type === 'spent') weeklyData.spent += t.amount;
                     else weeklyData.received += t.amount;
                 }
                 
-                // Monthly (last 30 days)
                 if (transactionDate >= oneMonthAgo) {
                     if (t.type === 'spent') monthlyData.spent += t.amount;
                     else monthlyData.received += t.amount;
@@ -1549,14 +1493,9 @@
             const userData = users[currentUser];
             const transactions = userData?.transactions || [];
             const currency = userData?.settings?.currency || '₹';
-            
-            // Filter transactions based on period
             const filteredTransactions = filterTransactionsByPeriod(transactions, period);
-            
-            // Update financial summary
             updateFinancialSummary(filteredTransactions, currency);
             
-            // Render charts
             renderTrendChart(filteredTransactions, period, currency);
             renderTopCategoriesChart(filteredTransactions, currency);
             renderIncomeSourcesChart(filteredTransactions, currency);
@@ -1604,8 +1543,6 @@
 
         function renderTrendChart(transactions, period, currency) {
             const ctx = document.getElementById('trendChart').getContext('2d');
-            
-            // Group transactions by time period
             const data = groupTransactionsByTime(transactions, period);
             
             if (charts.trendChart) {
@@ -1655,7 +1592,6 @@
             
             switch(period) {
                 case 'weekly':
-                    // Last 7 days
                     for (let i = 6; i >= 0; i--) {
                         const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
                         const dateStr = date.toISOString().split('T')[0];
@@ -1668,7 +1604,6 @@
                     break;
                     
                 case 'monthly':
-                    // Last 4 weeks
                     for (let i = 3; i >= 0; i--) {
                         const weekStart = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
                         const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
@@ -1684,7 +1619,6 @@
                     break;
                     
                 case 'yearly':
-                    // Last 12 months
                     for (let i = 11; i >= 0; i--) {
                         const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
                         labels.push(month.toLocaleDateString('en-US', { month: 'short' }));
@@ -1713,10 +1647,9 @@
                     spentByCategory[t.category] = (spentByCategory[t.category] || 0) + t.amount;
                 });
             
-            // Sort categories by amount (descending)
             const sortedCategories = Object.entries(spentByCategory)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 5); // Top 5 categories
+                .slice(0, 5); 
             
             if (charts.topCategoriesChart) {
                 charts.topCategoriesChart.destroy();
@@ -1802,7 +1735,6 @@
                 if (!data.success) throw new Error('API error');
             } catch (error) {
                 console.error('Settings API error, using localStorage:', error);
-                // Fallback to localStorage
                 if (users[currentUser]) {
                     users[currentUser].settings = { currency, dateFormat };
                     localStorage.setItem('users', JSON.stringify(users));
@@ -1825,4 +1757,5 @@
         }
     </script>
 </body>
+
 </html>
