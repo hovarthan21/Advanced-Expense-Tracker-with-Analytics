@@ -8,7 +8,6 @@ app = Flask(__name__, template_folder='.', static_folder='.')
 app.secret_key = 'expense_tracker_secret_key_2024'
 CORS(app)
 
-# File to store user data
 DATA_FILE = 'users.json'
 
 def load_users():
@@ -77,7 +76,7 @@ def get_transactions():
     users = load_users()
     user_data = users.get(username, {})
     
-    # Filter by time period if provided
+   
     time_filter = request.args.get('filter', 'all')
     transactions = user_data.get('transactions', [])
     
@@ -145,11 +144,10 @@ def get_dashboard():
     user_data = users.get(username, {})
     transactions = user_data.get('transactions', [])
     
-    # Calculate totals
+    
     total_spent = sum(t['amount'] for t in transactions if t['type'] == 'spent')
     total_received = sum(t['amount'] for t in transactions if t['type'] == 'received')
     
-    # Calculate breakdowns
     spent_categories = {}
     received_categories = {}
     
@@ -184,4 +182,5 @@ def save_settings():
     return jsonify({'success': False, 'message': 'User not found'})
 
 if __name__ == '__main__':
+
     app.run(debug=True, port=5000)
