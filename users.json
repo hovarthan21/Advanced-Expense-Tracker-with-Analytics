@@ -1,0 +1,11 @@
+{
+  "Hovarthan S": {
+    "username": "Hovarthan S",
+    "password": "12345678",
+    "transactions": [],
+    "settings": {
+      "currency": "\u20b9",
+      "dateFormat": "dd/mm/yyyy"
+    }
+  }
+}

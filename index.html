@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--white);
+            color: var(--white);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #e11570;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem 0;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .amount {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .amount.positive {
+            color: var(--success);
+        }
+
+        .amount.negative {
+            color: var(--danger);
+        }
+
+        .transaction-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-submit {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--secondary);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            height: 300px;
+        }
+
+        .chart-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .transactions-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .transaction-income {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .transaction-expense {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* Reports Section */
+        .reports-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container.full-width {
+            grid-column: 1 / -1;
+            height: 400px;
+        }
+
+        .financial-summary {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            margin-bottom: 1rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Progress Bars for Breakdown */
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #4cc9f0;
+        }
+
+        .notification.error {
+            background: #f72585;
+        }
+
+        .notification button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification button:hover {
+            opacity: 0.8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .transaction-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .reports-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .chart-container.full-width {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">ExpenseTracker</div>
+                <nav class="nav-links">
+                    <a href="#" class="active" data-page="dashboard">Dashboard</a>
+                    <a href="#" data-page="transactions">Transactions</a>
+                    <a href="#" data-page="reports">Reports</a>
+                    <a href="#" data-page="settings">Settings</a>
+                </nav>
+                <div class="user-info">
+                    <span id="welcomeMessage">Welcome, User</span>
+                    <button class="btn btn-outline" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <!-- Dashboard Summary -->
+            <section class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Money Spent</h2>
+                    </div>
+                    <div class="amount negative" id="totalSpent">₹0.00</div>
+                    <div class="spent-breakdown" id="spentBreakdown">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Money Received</h2>
+                    </div>
+                    <div class="amount positive" id="totalReceived">₹0.00</div>
+                    <div class="received-breakdown" id="receivedBreakdown">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transaction Form -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Add Transaction</h2>
+                </div>
+                <form id="transactionForm" class="transaction-form">
+                    <div class="form-group">
+                        <label for="transactionType">Transaction Type</label>
+                        <select id="transactionType" class="form-control" required>
+                            <option value="">Select Type</option>
+                            <option value="spent">Money Spent</option>
+                            <option value="received">Money Received</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" class="form-control" required>
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" class="form-control" placeholder="Enter amount" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description (Optional)</label>
+                        <input type="text" id="description" class="form-control" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-submit">Add Transaction</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <h3>Spending by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                    <div class="chart-actions">
+                        <button class="btn btn-primary" id="downloadSpendingChart">Download Chart</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Income vs Expenses</h3>
+                    <canvas id="incomeExpenseChart"></canvas>
+                    <div class="chart-actions">
+                        <button class="btn btn-primary" id="downloadIncomeExpenseChart">Download Chart</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Transactions -->
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Transactions</h2>
+                    <div>
+                        <select id="timeFilter" class="form-control">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Transactions Page -->
+        <div id="transactionsPage" class="page">
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">All Transactions</h2>
+                    <div>
+                        <select id="allTransactionsFilter" class="form-control">
+                            <option value="all">All Transactions</option>
+                            <option value="spent">Money Spent</option>
+                            <option value="received">Money Received</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTransactionsTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reportsPage" class="page">
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Financial Reports</h2>
+                    <div>
+                        <select id="reportPeriod" class="form-control">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="reports-charts">
+                    <div class="chart-container full-width">
+                        <h3>Income vs Expenses Trend</h3>
+                        <canvas id="trendChart"></canvas>
+                        <div class="chart-actions">
+                            <button class="btn btn-primary" id="downloadTrendChart">Download Chart</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Top Spending Categories</h3>
+                        <canvas id="topCategoriesChart"></canvas>
+                        <div class="chart-actions">
+                            <button class="btn btn-primary" id="downloadTopCategoriesChart">Download Chart</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Income Sources</h3>
+                        <canvas id="incomeSourcesChart"></canvas>
+                        <div class="chart-actions">
+                            <button class="btn btn-primary" id="downloadIncomeSourcesChart">Download Chart</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Financial Summary -->
+                <div class="financial-summary">
+                    <h3>Financial Summary</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h4>Total Income</h4>
+                            <div class="amount positive" id="reportTotalIncome">₹0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Total Expenses</h4>
+                            <div class="amount negative" id="reportTotalExpenses">₹0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Net Savings</h4>
+                            <div class="amount" id="reportNetSavings">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settingsPage" class="page">
+            <section class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Settings</h2>
+                </div>
+                <div class="settings-content">
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <select id="currency" class="form-control">
+                            <option value="₹">INR (₹)</option>
+                            <option value="$">USD ($)</option>
+                            <option value="€">EUR (€)</option>
+                            <option value="£">GBP (£)</option>
+                            <option value="¥">JPY (¥)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateFormat">Date Format</label>
+                        <select id="dateFormat" class="form-control">
+                            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+                            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn-submit" id="saveSettings">Save Settings</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Login</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="tabs">
+                <div class="tab active" data-tab="login">Login</div>
+                <div class="tab" data-tab="register">Register</div>
+            </div>
+            <div class="tab-content active" id="loginTab">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-submit">Login</button>
+                    </div>
+                </form>
+            </div>
+            <div class="tab-content" id="registerTab">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-submit">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const spentCategories = ["Food", "Travel", "Friends", "Family", "Stationary", "Rent"];
+        const receivedCategories = ["Friends", "Family", "Work"];
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('users') || '{}');
+        let charts = {};
+
+        // DOM Elements
+        const loginModal = document.getElementById('loginModal');
+        const transactionForm = document.getElementById('transactionForm');
+        const transactionType = document.getElementById('transactionType');
+        const categorySelect = document.getElementById('category');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = localStorage.getItem('currentUser');
+            updateUI();
+            setupEventListeners();
+            
+            // Set Indian Rupees as default currency for new users
+            initializeDefaultSettings();
+            
+            if (currentUser) {
+                updateDashboard();
+                renderCharts();
+                updateTransactionsTable();
+            }
+        });
+
+        function initializeDefaultSettings() {
+            // If no users exist yet, initialize with Indian Rupees as default
+            if (Object.keys(users).length === 0) {
+                users = {
+                    'default': {
+                        username: 'default',
+                        password: 'default',
+                        transactions: [],
+                        settings: { currency: '₹', dateFormat: 'dd/mm/yyyy' }
+                    }
+                };
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            // Set Indian Rupees as selected in dropdown
+            const currencySelect = document.getElementById('currency');
+            if (currencySelect) {
+                currencySelect.value = '₹';
+            }
+        }
+
+        function setupEventListeners() {
+            // Transaction form
+            transactionType.addEventListener('change', updateCategories);
+            transactionForm.addEventListener('submit', handleTransactionSubmit);
+            
+            // Login/Register forms
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Filters
+            document.getElementById('timeFilter').addEventListener('change', updateTransactionsTable);
+            document.getElementById('allTransactionsFilter').addEventListener('change', updateAllTransactionsTable);
+            
+            // Reports
+            document.getElementById('reportPeriod').addEventListener('change', renderReports);
+            document.getElementById('downloadTrendChart').addEventListener('click', () => downloadChart('trendChart'));
+            document.getElementById('downloadTopCategoriesChart').addEventListener('click', () => downloadChart('topCategoriesChart'));
+            document.getElementById('downloadIncomeSourcesChart').addEventListener('click', () => downloadChart('incomeSourcesChart'));
+            
+            // Settings
+            document.getElementById('saveSettings').addEventListener('click', saveSettings);
+            
+            // Chart downloads
+            document.getElementById('downloadSpendingChart').addEventListener('click', () => downloadChart('categoryChart'));
+            document.getElementById('downloadIncomeExpenseChart').addEventListener('click', () => downloadChart('incomeExpenseChart'));
+            
+            // Navigation
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                    
+                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                });
+            });
+
+            // Modal
+            document.querySelector('.close-modal').addEventListener('click', () => {
+                loginModal.style.display = 'none';
+            });
+            
+            loginModal.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+            });
+
+            // Tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}Tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        function updateCategories() {
+            const type = transactionType.value;
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+            
+            const categories = type === 'spent' ? spentCategories : receivedCategories;
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        async function handleTransactionSubmit(e) {
+            e.preventDefault();
+            
+            const type = transactionType.value;
+            const category = categorySelect.value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value || 'No description';
+            const date = new Date();
+            
+            const transaction = {
+                id: Date.now(),
+                type,
+                category,
+                amount,
+                description,
+                date: date.toISOString().split('T')[0],
+                day: date.toLocaleDateString('en-US', { weekday: 'long' })
+            };
+            
+            try {
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(transaction)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Add to local storage as fallback
+                    if (users[currentUser]) {
+                        users[currentUser].transactions.push(transaction);
+                        localStorage.setItem('users', JSON.stringify(users));
+                    }
+                    
+                    // Update all dashboard elements immediately
+                    updateDashboard();
+                    renderCharts();
+                    updateTransactionsTable();
+                    updateAllTransactionsTable();
+                    
+                    // Reset form
+                    transactionForm.reset();
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                    
+                    // Show success message
+                    showNotification('Transaction added successfully!', 'success');
+                }
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                // Fallback to localStorage
+                if (users[currentUser]) {
+                    users[currentUser].transactions.push(transaction);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    
+                    // Update all dashboard elements immediately
+                    updateDashboard();
+                    renderCharts();
+                    updateTransactionsTable();
+                    updateAllTransactionsTable();
+                    
+                    // Reset form
+                    transactionForm.reset();
+                    categorySelect.innerHTML = '<option value="">Select Category</option>';
+                    
+                    // Show success message
+                    showNotification('Transaction added successfully!', 'success');
+                } else {
+                    showNotification('Error adding transaction. Please try again.', 'error');
+                }
+            }
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">&times;</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    currentUser = username;
+                    localStorage.setItem('currentUser', username);
+                    updateUI();
+                    updateDashboard();
+                    renderCharts();
+                    updateTransactionsTable();
+                    showNotification('Login successful!', 'success');
+                } else {
+                    showNotification('Invalid username or password', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                // Fallback to localStorage
+                if (users[username] && users[username].password === password) {
+                    currentUser = username;
+                    localStorage.setItem('currentUser', username);
+                    updateUI();
+                    updateDashboard();
+                    renderCharts();
+                    updateTransactionsTable();
+                    showNotification('Login successful!', 'success');
+                } else {
+                    showNotification('Invalid username or password', 'error');
+                }
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Add to local storage as fallback with Indian Rupees as default
+                    users[username] = {
+                        username,
+                        password,
+                        transactions: [],
+                        settings: { currency: '₹', dateFormat: 'dd/mm/yyyy' }
+                    };
+                    localStorage.setItem('users', JSON.stringify(users));
+                    
+                    showNotification('Registration successful! Please login.', 'success');
+                    document.getElementById('registerForm').reset();
+                    
+                    // Switch to login tab
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelector('.tab[data-tab="login"]').classList.add('active');
+                    document.getElementById('loginTab').classList.add('active');
+                } else {
+                    showNotification('Username already exists', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                // Fallback to localStorage
+                if (users[username]) {
+                    showNotification('Username already exists', 'error');
+                } else {
+                    users[username] = {
+                        username,
+                        password,
+                        transactions: [],
+                        settings: { currency: '₹', dateFormat: 'dd/mm/yyyy' }
+                    };
+                    localStorage.setItem('users', JSON.stringify(users));
+                    showNotification('Registration successful! Please login.', 'success');
+                    document.getElementById('registerForm').reset();
+                    
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.querySelector('.tab[data-tab="login"]').classList.add('active');
+                    document.getElementById('loginTab').classList.add('active');
+                }
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                updateUI();
+                
+                // Destroy charts
+                Object.values(charts).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                charts = {};
+                
+                showNotification('Logged out successfully', 'success');
+            }
+        }
+
+        function updateUI() {
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            if (currentUser) {
+                welcomeMessage.textContent = `Welcome, ${currentUser}`;
+                loginModal.style.display = 'none';
+            } else {
+                welcomeMessage.textContent = 'Welcome, User';
+                loginModal.style.display = 'flex';
+            }
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageName}Page`).classList.add('active');
+            
+            switch(pageName) {
+                case 'dashboard':
+                    updateDashboard();
+                    renderCharts();
+                    updateTransactionsTable();
+                    break;
+                case 'transactions':
+                    updateAllTransactionsTable();
+                    break;
+                case 'reports':
+                    renderReports();
+                    break;
+            }
+        }
+
+        function updateDashboard() {
+            const userData = users[currentUser];
+            const transactions = userData?.transactions || [];
+            const currency = userData?.settings?.currency || '₹'; // Default to Indian Rupees
+            
+            // Calculate totals
+            const totalSpent = transactions
+                .filter(t => t.type === 'spent')
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const totalReceived = transactions
+                .filter(t => t.type === 'received')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            // Update totals with Indian Rupees symbol
+            document.getElementById('totalSpent').textContent = `${currency}${totalSpent.toFixed(2)}`;
+            document.getElementById('totalReceived').textContent = `${currency}${totalReceived.toFixed(2)}`;
+            
+            // Calculate and update breakdowns
+            updateSpentBreakdown(transactions, totalSpent, currency);
+            updateReceivedBreakdown(transactions, totalReceived, currency);
+        }
+
+        function updateSpentBreakdown(transactions, totalSpent, currency) {
+            const spentByCategory = {};
+            
+            transactions
+                .filter(t => t.type === 'spent')
+                .forEach(t => {
+                    spentByCategory[t.category] = (spentByCategory[t.category] || 0) + t.amount;
+                });
+            
+            const spentBreakdown = document.getElementById('spentBreakdown');
+            spentBreakdown.innerHTML = '';
+            
+            for (const [category, amount] of Object.entries(spentByCategory)) {
+                const percentage = totalSpent > 0 ? ((amount / totalSpent) * 100).toFixed(1) : 0;
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>${category}</span>
+                        <span>${currency}${amount.toFixed(2)} (${percentage}%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                spentBreakdown.appendChild(item);
+            }
+            
+            // Show message if no spending
+            if (Object.keys(spentByCategory).length === 0) {
+                spentBreakdown.innerHTML = '<div style="text-align: center; color: var(--gray);">No spending data available</div>';
+            }
+        }
+
+        function updateReceivedBreakdown(transactions, totalReceived, currency) {
+            const receivedByCategory = {};
+            
+            transactions
+                .filter(t => t.type === 'received')
+                .forEach(t => {
+                    receivedByCategory[t.category] = (receivedByCategory[t.category] || 0) + t.amount;
+                });
+            
+            const receivedBreakdown = document.getElementById('receivedBreakdown');
+            receivedBreakdown.innerHTML = '';
+            
+            for (const [category, amount] of Object.entries(receivedByCategory)) {
+                const percentage = totalReceived > 0 ? ((amount / totalReceived) * 100).toFixed(1) : 0;
+                const item = document.createElement('div');
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>${category}</span>
+                        <span>${currency}${amount.toFixed(2)} (${percentage}%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                receivedBreakdown.appendChild(item);
+            }
+            
+            // Show message if no income
+            if (Object.keys(receivedByCategory).length === 0) {
+                receivedBreakdown.innerHTML = '<div style="text-align: center; color: var(--gray);">No income data available</div>';
+            }
+        }
+
+        async function updateTransactionsTable() {
+            const filter = document.getElementById('timeFilter').value;
+            let transactions = [];
+            
+            try {
+                const response = await fetch(`/api/transactions?filter=${filter}`);
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                if (data.success) {
+                    transactions = data.transactions;
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (error) {
+                console.error('Transactions API error, using localStorage:', error);
+                // Fallback to localStorage
+                const userData = users[currentUser];
+                transactions = userData?.transactions || [];
+                
+                if (filter !== 'all') {
+                    const now = new Date();
+                    
+                    if (filter === 'daily') {
+                        const today = now.toISOString().split('T')[0];
+                        transactions = transactions.filter(t => t.date === today);
+                    } else if (filter === 'weekly') {
+                        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        transactions = transactions.filter(t => new Date(t.date) >= oneWeekAgo);
+                    } else if (filter === 'monthly') {
+                        const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                        transactions = transactions.filter(t => new Date(t.date) >= oneMonthAgo);
+                    }
+                }
+            }
+            
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const userData = users[currentUser];
+            const currency = userData?.settings?.currency || '₹'; // Default to Indian Rupees
+            const tableBody = document.getElementById('transactionsTableBody');
+            tableBody.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" style="text-align: center; color: var(--gray);">No transactions found</td>`;
+                tableBody.appendChild(row);
+            } else {
+                transactions.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    const amountClass = transaction.type === 'received' ? 'transaction-income' : 'transaction-expense';
+                    const amountSign = transaction.type === 'received' ? '+' : '-';
+                    
+                    row.innerHTML = `
+                        <td>${transaction.date} (${transaction.day})</td>
+                        <td>${transaction.description}</td>
+                        <td>${transaction.category}</td>
+                        <td class="${amountClass}">${amountSign}${currency}${transaction.amount.toFixed(2)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        async function updateAllTransactionsTable() {
+            const filter = document.getElementById('allTransactionsFilter').value;
+            let transactions = [];
+            
+            try {
+                const response = await fetch('/api/transactions');
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                if (data.success) {
+                    transactions = data.transactions;
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (error) {
+                console.error('All transactions API error, using localStorage:', error);
+                // Fallback to localStorage
+                const userData = users[currentUser];
+                transactions = userData?.transactions || [];
+            }
+            
+            if (filter !== 'all') {
+                transactions = transactions.filter(t => t.type === filter);
+            }
+            
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const userData = users[currentUser];
+            const currency = userData?.settings?.currency || '₹'; // Default to Indian Rupees
+            const tableBody = document.getElementById('allTransactionsTableBody');
+            tableBody.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="6" style="text-align: center; color: var(--gray);">No transactions found</td>`;
+                tableBody.appendChild(row);
+            } else {
+                transactions.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    const amountClass = transaction.type === 'received' ? 'transaction-income' : 'transaction-expense';
+                    const amountSign = transaction.type === 'received' ? '+' : '-';
+                    
+                    row.innerHTML = `
+                        <td>${transaction.date}</td>
+                        <td>${transaction.description}</td>
+                        <td>${transaction.category}</td>
+                        <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
+                        <td class="${amountClass}">${amountSign}${currency}${transaction.amount.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteTransaction(${transaction.id})">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        async function deleteTransaction(transactionId) {
+            try {
+                const response = await fetch(`/api/transactions/${transactionId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                if (!data.success) throw new Error('API error');
+            } catch (error) {
+                console.error('Delete API error, using localStorage:', error);
+                // Fallback to localStorage
+                if (users[currentUser]) {
+                    users[currentUser].transactions = users[currentUser].transactions.filter(t => t.id !== transactionId);
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+            
+            updateDashboard();
+            renderCharts();
+            updateTransactionsTable();
+            updateAllTransactionsTable();
+            showNotification('Transaction deleted successfully!', 'success');
+        }
+
+        function renderCharts() {
+            const userData = users[currentUser];
+            const transactions = userData?.transactions || [];
+            
+            // Spending by Category Chart
+            const spentByCategory = {};
+            spentCategories.forEach(category => {
+                spentByCategory[category] = 0;
+            });
+            
+            transactions
+                .filter(t => t.type === 'spent')
+                .forEach(t => {
+                    spentByCategory[t.category] = (spentByCategory[t.category] || 0) + t.amount;
+                });
+            
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (charts.categoryChart) {
+                charts.categoryChart.destroy();
+            }
+            
+            charts.categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(spentByCategory),
+                    datasets: [{
+                        data: Object.values(spentByCategory),
+                        backgroundColor: [
+                            '#4361ee', '#3f37c9', '#4cc9f0', '#f72585', '#f8961e', '#4895ef'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Income vs Expenses Chart
+            const now = new Date();
+            const dailyData = { spent: 0, received: 0 };
+            const weeklyData = { spent: 0, received: 0 };
+            const monthlyData = { spent: 0, received: 0 };
+            
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            
+            transactions.forEach(t => {
+                const transactionDate = new Date(t.date);
+                
+                // Daily (today)
+                if (t.date === now.toISOString().split('T')[0]) {
+                    if (t.type === 'spent') dailyData.spent += t.amount;
+                    else dailyData.received += t.amount;
+                }
+                
+                // Weekly (last 7 days)
+                if (transactionDate >= oneWeekAgo) {
+                    if (t.type === 'spent') weeklyData.spent += t.amount;
+                    else weeklyData.received += t.amount;
+                }
+                
+                // Monthly (last 30 days)
+                if (transactionDate >= oneMonthAgo) {
+                    if (t.type === 'spent') monthlyData.spent += t.amount;
+                    else monthlyData.received += t.amount;
+                }
+            });
+            
+            const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+            
+            if (charts.incomeExpenseChart) {
+                charts.incomeExpenseChart.destroy();
+            }
+            
+            charts.incomeExpenseChart = new Chart(incomeExpenseCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Daily', 'Weekly', 'Monthly'],
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: [dailyData.received, weeklyData.received, monthlyData.received],
+                            backgroundColor: '#4cc9f0'
+                        },
+                        {
+                            label: 'Expenses',
+                            data: [dailyData.spent, weeklyData.spent, monthlyData.spent],
+                            backgroundColor: '#f72585'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderReports() {
+            const period = document.getElementById('reportPeriod').value;
+            const userData = users[currentUser];
+            const transactions = userData?.transactions || [];
+            const currency = userData?.settings?.currency || '₹';
+            
+            // Filter transactions based on period
+            const filteredTransactions = filterTransactionsByPeriod(transactions, period);
+            
+            // Update financial summary
+            updateFinancialSummary(filteredTransactions, currency);
+            
+            // Render charts
+            renderTrendChart(filteredTransactions, period, currency);
+            renderTopCategoriesChart(filteredTransactions, currency);
+            renderIncomeSourcesChart(filteredTransactions, currency);
+        }
+
+        function filterTransactionsByPeriod(transactions, period) {
+            const now = new Date();
+            let startDate;
+            
+            switch(period) {
+                case 'weekly':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'monthly':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    break;
+                case 'yearly':
+                    startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                    break;
+                default:
+                    startDate = new Date(0); // All time
+            }
+            
+            return transactions.filter(t => new Date(t.date) >= startDate);
+        }
+
+        function updateFinancialSummary(transactions, currency) {
+            const totalIncome = transactions
+                .filter(t => t.type === 'received')
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const totalExpenses = transactions
+                .filter(t => t.type === 'spent')
+                .reduce((sum, t) => sum + t.amount, 0);
+                
+            const netSavings = totalIncome - totalExpenses;
+            
+            document.getElementById('reportTotalIncome').textContent = `${currency}${totalIncome.toFixed(2)}`;
+            document.getElementById('reportTotalExpenses').textContent = `${currency}${totalExpenses.toFixed(2)}`;
+            
+            const netSavingsElement = document.getElementById('reportNetSavings');
+            netSavingsElement.textContent = `${currency}${Math.abs(netSavings).toFixed(2)}`;
+            netSavingsElement.className = `amount ${netSavings >= 0 ? 'positive' : 'negative'}`;
+        }
+
+        function renderTrendChart(transactions, period, currency) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // Group transactions by time period
+            const data = groupTransactionsByTime(transactions, period);
+            
+            if (charts.trendChart) {
+                charts.trendChart.destroy();
+            }
+            
+            charts.trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: data.income,
+                            borderColor: '#4cc9f0',
+                            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Expenses',
+                            data: data.expenses,
+                            borderColor: '#f72585',
+                            backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function groupTransactionsByTime(transactions, period) {
+            const now = new Date();
+            let labels = [];
+            let income = [];
+            let expenses = [];
+            
+            switch(period) {
+                case 'weekly':
+                    // Last 7 days
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                        const dateStr = date.toISOString().split('T')[0];
+                        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                        
+                        const dayTransactions = transactions.filter(t => t.date === dateStr);
+                        income.push(dayTransactions.filter(t => t.type === 'received').reduce((sum, t) => sum + t.amount, 0));
+                        expenses.push(dayTransactions.filter(t => t.type === 'spent').reduce((sum, t) => sum + t.amount, 0));
+                    }
+                    break;
+                    
+                case 'monthly':
+                    // Last 4 weeks
+                    for (let i = 3; i >= 0; i--) {
+                        const weekStart = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+                        const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+                        labels.push(`Week ${4-i}`);
+                        
+                        const weekTransactions = transactions.filter(t => {
+                            const transDate = new Date(t.date);
+                            return transDate >= weekStart && transDate <= weekEnd;
+                        });
+                        income.push(weekTransactions.filter(t => t.type === 'received').reduce((sum, t) => sum + t.amount, 0));
+                        expenses.push(weekTransactions.filter(t => t.type === 'spent').reduce((sum, t) => sum + t.amount, 0));
+                    }
+                    break;
+                    
+                case 'yearly':
+                    // Last 12 months
+                    for (let i = 11; i >= 0; i--) {
+                        const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        labels.push(month.toLocaleDateString('en-US', { month: 'short' }));
+                        
+                        const monthTransactions = transactions.filter(t => {
+                            const transDate = new Date(t.date);
+                            return transDate.getFullYear() === month.getFullYear() && 
+                                   transDate.getMonth() === month.getMonth();
+                        });
+                        income.push(monthTransactions.filter(t => t.type === 'received').reduce((sum, t) => sum + t.amount, 0));
+                        expenses.push(monthTransactions.filter(t => t.type === 'spent').reduce((sum, t) => sum + t.amount, 0));
+                    }
+                    break;
+            }
+            
+            return { labels, income, expenses };
+        }
+
+        function renderTopCategoriesChart(transactions, currency) {
+            const ctx = document.getElementById('topCategoriesChart').getContext('2d');
+            
+            const spentByCategory = {};
+            transactions
+                .filter(t => t.type === 'spent')
+                .forEach(t => {
+                    spentByCategory[t.category] = (spentByCategory[t.category] || 0) + t.amount;
+                });
+            
+            // Sort categories by amount (descending)
+            const sortedCategories = Object.entries(spentByCategory)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5); // Top 5 categories
+            
+            if (charts.topCategoriesChart) {
+                charts.topCategoriesChart.destroy();
+            }
+            
+            charts.topCategoriesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedCategories.map(item => item[0]),
+                    datasets: [{
+                        label: 'Amount Spent',
+                        data: sortedCategories.map(item => item[1]),
+                        backgroundColor: '#4361ee',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderIncomeSourcesChart(transactions, currency) {
+            const ctx = document.getElementById('incomeSourcesChart').getContext('2d');
+            
+            const receivedByCategory = {};
+            transactions
+                .filter(t => t.type === 'received')
+                .forEach(t => {
+                    receivedByCategory[t.category] = (receivedByCategory[t.category] || 0) + t.amount;
+                });
+            
+            if (charts.incomeSourcesChart) {
+                charts.incomeSourcesChart.destroy();
+            }
+            
+            charts.incomeSourcesChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(receivedByCategory),
+                    datasets: [{
+                        data: Object.values(receivedByCategory),
+                        backgroundColor: [
+                            '#4cc9f0', '#4895ef', '#4361ee', '#3f37c9', '#560bad'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        async function saveSettings() {
+            const currency = document.getElementById('currency').value;
+            const dateFormat = document.getElementById('dateFormat').value;
+            
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ currency, dateFormat })
+                });
+                
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                if (!data.success) throw new Error('API error');
+            } catch (error) {
+                console.error('Settings API error, using localStorage:', error);
+                // Fallback to localStorage
+                if (users[currentUser]) {
+                    users[currentUser].settings = { currency, dateFormat };
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+            
+            showNotification('Settings saved successfully!', 'success');
+            updateDashboard();
+            updateTransactionsTable();
+            updateAllTransactionsTable();
+        }
+
+        function downloadChart(chartName) {
+            if (charts[chartName]) {
+                const link = document.createElement('a');
+                link.download = `${chartName}.png`;
+                link.href = charts[chartName].toBase64Image();
+                link.click();
+            }
+        }
+    </script>
+</body>
+</html>
